@@ -19,10 +19,13 @@ export const LoadingSpinner = ({
   className,
 }: LoadingSpinnerProps) => (
   <div
+    data-testid="loading-spinner"
     className={cn('flex items-center justify-center min-h-[200px]', className)}
   >
     <div className="text-center">
       <Loader2
+        role="status"
+        aria-label="Loading"
         className={cn(
           'animate-spin text-blue-600 mx-auto mb-4',
           sizeClasses[size],
@@ -51,6 +54,8 @@ export const LoadingCard = ({
   >
     <div className="text-center">
       <Loader2
+        role="status"
+        aria-label="Loading"
         className={cn(
           'animate-spin text-blue-600 mx-auto mb-4',
           sizeClasses[size],
@@ -76,7 +81,13 @@ export const LoadingButton = ({
   className,
 }: LoadingButtonProps) => (
   <div className={cn('flex items-center gap-2', className)}>
-    {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+    {loading && (
+      <Loader2
+        role="status"
+        aria-label="Loading"
+        className="h-4 w-4 animate-spin"
+      />
+    )}
     {children}
   </div>
 )
