@@ -1,4 +1,9 @@
-import type { ApiError, ApiResponse, CatalogItemsResponse } from '@/types/api'
+import type {
+  ApiError,
+  ApiResponse,
+  CatalogItemsResponse,
+  IRTasksResponse,
+} from '@/types/api'
 import { env } from '@/env'
 
 const apiRequest = async <T>(
@@ -59,5 +64,15 @@ export const getCatalogItems = async (
 ): Promise<ApiResponse<CatalogItemsResponse>> => {
   return apiRequest<CatalogItemsResponse>(
     `/v2/catalog-items?offset=${offset}&limit=${limit}`,
+  )
+}
+
+// IR Tasks API
+export const getIRTasks = async (
+  offset: number = 0,
+  limit: number = 50,
+): Promise<ApiResponse<IRTasksResponse>> => {
+  return apiRequest<IRTasksResponse>(
+    `/v2/image-recognition/tasks?offset=${offset}&limit=${limit}`,
   )
 }

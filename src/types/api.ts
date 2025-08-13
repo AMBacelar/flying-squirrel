@@ -32,6 +32,23 @@ export type CatalogItemsResponse = {
   offset: number
 }
 
+// IR Tasks Types
+export type IRTask = {
+  uuid: string
+  name: string
+  created_at: string
+  updated_at: string
+  compute_realogram: boolean
+  compute_shares: boolean
+}
+
+export type IRTasksResponse = {
+  items: IRTask[]
+  total: number
+  limit: number
+  offset: number
+}
+
 export type ApiError = {
   error: string
   message: string

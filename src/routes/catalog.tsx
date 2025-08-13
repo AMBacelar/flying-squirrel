@@ -7,7 +7,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CatalogItemCard } from '@/components/CatalogItemCard'
 
 const ValidSearchParams = z.object({
-  limit: fallback(z.coerce.number().pipe(z.number().min(1).max(100)), 50),
+  limit: fallback(
+    z.coerce.number().pipe(z.number().min(1).max(100)),
+    50,
+  ).optional(),
 })
 
 export const Route = createFileRoute('/catalog')({
