@@ -1,17 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AlertCircle, Brain } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Brain, Upload } from 'lucide-react'
 import { z } from 'zod'
 import { fallback, zodValidator } from '@tanstack/zod-adapter'
+import { useState } from 'react'
 import type { IRTask } from '@/types/api'
 import { useIRTasks } from '@/hooks/useApi'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { IRTaskCard, ImageUploadInterface } from '@/components/ir-tasks'
 
 const ValidSearchParams = z.object({
   limit: fallback(
@@ -27,6 +23,7 @@ export const Route = createFileRoute('/ir-tasks')({
 
 function IRTasksPage() {
   const { limit } = Route.useSearch()
+  const [selectedTask, setSelectedTask] = useState<IRTask | null>(null)
   const {
     items: irTasks,
     total,
@@ -70,6 +67,32 @@ function IRTasksPage() {
     )
   }
 
+  if (selectedTask) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <Button
+          variant="outline"
+          onClick={() => setSelectedTask(null)}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Tasks
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <Upload className="h-8 w-8" />
+            Upload Images
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Selected Task: {selectedTask.name}
+          </p>
+        </div>
+
+        <ImageUploadInterface task={selectedTask} />
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -86,11 +109,10 @@ function IRTasksPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {irTasks.map((task) => (
-          <IRTaskCard key={task.uuid} task={task} />
+          <IRTaskCard key={task.uuid} task={task} onSelect={setSelectedTask} />
         ))}
       </div>
 
-      {/* Load More Button */}
       {hasMore && (
         <div className="flex justify-center py-8">
           <button
@@ -110,14 +132,12 @@ function IRTasksPage() {
         </div>
       )}
 
-      {/* End Message */}
       {!hasMore && irTasks.length > 0 && (
         <div className="text-center py-8 text-gray-500">
           You've reached the end! All {total} tasks loaded.
         </div>
       )}
 
-      {/* Empty State */}
       {irTasks.length === 0 && (
         <div className="text-center py-12">
           <Brain className="h-16 w-16 text-gray-300 mx-auto mb-4" />
@@ -137,61 +157,5 @@ function IRTasksPage() {
         </div>
       )}
     </div>
-  )
-}
-
-type IRTaskCardProps = {
-  task: IRTask
-}
-
-const IRTaskCard = ({ task }: IRTaskCardProps) => {
-  return (
-    <Card className="transition-all duration-200 hover:shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">{task.name}</CardTitle>
-        <CardDescription className="text-sm text-gray-600">
-          UUID: {task.uuid.slice(0, 8)}...
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {/* Task Details */}
-        <div className="space-y-2 text-sm text-gray-600">
-          <div className="flex justify-between">
-            <span>Created:</span>
-            <span>{new Date(task.created_at).toLocaleDateString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Updated:</span>
-            <span>{new Date(task.updated_at).toLocaleDateString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Realogram:</span>
-            <span
-              className={
-                task.compute_realogram ? 'text-green-600' : 'text-gray-400'
-              }
-            >
-              {task.compute_realogram ? 'Yes' : 'No'}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Shares:</span>
-            <span
-              className={
-                task.compute_shares ? 'text-green-600' : 'text-gray-400'
-              }
-            >
-              {task.compute_shares ? 'Yes' : 'No'}
-            </span>
-          </div>
-        </div>
-
-        {/* Action Button */}
-        <button className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-          Select Task
-        </button>
-      </CardContent>
-    </Card>
   )
 }
