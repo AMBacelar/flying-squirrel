@@ -17,4 +17,12 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/v2': {
+        target: 'https://staging.api.neurolabs.ai',
+        changeOrigin: true,
+      },
+    },
+  },
 })
