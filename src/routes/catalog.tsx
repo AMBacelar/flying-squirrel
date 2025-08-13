@@ -1,15 +1,32 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AlertCircle, Package } from 'lucide-react'
+import { z } from 'zod'
+import { fallback, zodValidator } from '@tanstack/zod-adapter'
 import { useCatalogItems } from '@/hooks/useApi'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CatalogItemCard } from '@/components/CatalogItemCard'
 
+const ValidSearchParams = z.object({
+  limit: fallback(z.coerce.number().pipe(z.number().min(1).max(100)), 50),
+})
+
 export const Route = createFileRoute('/catalog')({
+  validateSearch: zodValidator(ValidSearchParams),
   component: CatalogPage,
 })
 
 function CatalogPage() {
-  const { data, isLoading, error, refetch } = useCatalogItems()
+  const { limit } = Route.useSearch()
+  const {
+    items: catalogItems,
+    total,
+    hasMore,
+    loadMore,
+    isLoadingMore,
+    isLoading,
+    error,
+    refetch,
+  } = useCatalogItems(limit)
 
   if (isLoading) {
     return (
@@ -43,12 +60,6 @@ function CatalogPage() {
     )
   }
 
-  const catalogItems = data?.items || []
-  const incompleteCount = catalogItems.filter(
-    (item) => item.status === 'INCOMPLETE',
-  ).length
-  const totalCount = data?.total || 0
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -57,18 +68,10 @@ function CatalogPage() {
             <Package className="h-8 w-8" />
             Catalog Items
           </h1>
-          <p className="text-gray-600 mt-1">{totalCount} items total</p>
+          <p className="text-gray-600 mt-1">
+            Showing {catalogItems.length} of {total} items
+          </p>
         </div>
-
-        {incompleteCount > 0 && (
-          <Alert className="w-auto">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {incompleteCount} item{incompleteCount === 1 ? '' : 's'}{' '}
-              {incompleteCount === 1 ? 'is' : 'are'} incomplete
-            </AlertDescription>
-          </Alert>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -76,6 +79,33 @@ function CatalogPage() {
           <CatalogItemCard key={item.uuid} item={item} />
         ))}
       </div>
+
+      {/* Load More Button */}
+      {hasMore && (
+        <div className="flex justify-center py-8">
+          <button
+            onClick={() => loadMore()}
+            disabled={isLoadingMore}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          >
+            {isLoadingMore ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Loading...
+              </>
+            ) : (
+              `Load More Items`
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* End Message */}
+      {!hasMore && catalogItems.length > 0 && (
+        <div className="text-center py-8 text-gray-500">
+          You've reached the end! All {total} items loaded.
+        </div>
+      )}
 
       {catalogItems.length === 0 && (
         <div className="text-center py-12">
