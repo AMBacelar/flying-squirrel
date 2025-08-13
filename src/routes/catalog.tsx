@@ -4,7 +4,9 @@ import { z } from 'zod'
 import { fallback, zodValidator } from '@tanstack/zod-adapter'
 import { useCatalogItems } from '@/hooks/useApi'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { CatalogItemCard } from '@/components/CatalogItemCard'
+import { LoadingSpinner } from '@/components/ui/loading'
 
 const ValidSearchParams = z.object({
   limit: fallback(
@@ -34,12 +36,7 @@ function CatalogPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading catalog items...</p>
-          </div>
-        </div>
+        <LoadingSpinner size="lg" text="Loading catalog items..." />
       </div>
     )
   }
@@ -86,20 +83,14 @@ function CatalogPage() {
       {/* Load More Button */}
       {hasMore && (
         <div className="flex justify-center py-8">
-          <button
+          <Button
             onClick={() => loadMore()}
-            disabled={isLoadingMore}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            isLoading={isLoadingMore}
+            loadingText="Loading..."
+            className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700"
           >
-            {isLoadingMore ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Loading...
-              </>
-            ) : (
-              `Load More Items`
-            )}
-          </button>
+            Load More Items
+          </Button>
         </div>
       )}
 

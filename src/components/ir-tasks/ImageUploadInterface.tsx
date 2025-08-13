@@ -183,20 +183,12 @@ export const ImageUploadInterface = ({ task }: ImageUploadInterfaceProps) => {
               <Button
                 onClick={handleSubmit}
                 size="lg"
-                disabled={submitImagesMutation.isPending}
+                isLoading={submitImagesMutation.isPending}
+                loadingText="Submitting..."
               >
-                {submitImagesMutation.isPending ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Submit {selectedFiles.length} Image
-                    {selectedFiles.length !== 1 ? 's' : ''}
-                  </>
-                )}
+                <Upload className="h-4 w-4 mr-2" />
+                Submit {selectedFiles.length} Image
+                {selectedFiles.length !== 1 ? 's' : ''}
               </Button>
             </div>
           )}

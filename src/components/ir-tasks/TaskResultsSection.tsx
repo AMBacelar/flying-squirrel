@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { LoadingCard } from '@/components/ui/loading'
 
 type TaskResultsSectionProps = {
   taskUuid: string
@@ -17,17 +18,11 @@ export const TaskResultsSection = ({ taskUuid }: TaskResultsSectionProps) => {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Processing History</CardTitle>
-          <CardDescription>Loading existing results...</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        </CardContent>
-      </Card>
+      <LoadingCard
+        title="Processing History"
+        description="Loading existing results..."
+        size="md"
+      />
     )
   }
 
