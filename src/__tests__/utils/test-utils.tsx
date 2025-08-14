@@ -1,4 +1,3 @@
-import React from 'react'
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
@@ -6,7 +5,7 @@ import { routeTree } from '../../routeTree.gen'
 import type { RenderOptions } from '@testing-library/react'
 import type { ReactElement } from 'react'
 
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+const AllTheProviders = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {

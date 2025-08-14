@@ -56,6 +56,25 @@ function Button({
   const Comp = asChild ? Slot : 'button'
   const isDisabled = disabled || isLoading
 
+  // When asChild is true, we need to ensure only one child is passed to Slot
+  if (asChild) {
+    // For asChild, we need to clone the child and merge our props
+    const child = React.Children.only(children)
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, {
+        className: cn(
+          buttonVariants({ variant, size, className }),
+          (child.props as any).className,
+        ),
+        disabled: isDisabled,
+        ...props,
+      } as any)
+    }
+    // Fallback if child is not a valid element
+    return child
+  }
+
+  // Regular button rendering
   return (
     <Comp
       data-slot="button"

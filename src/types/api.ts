@@ -4,7 +4,7 @@ export const CatalogItemStatusSchema = z.enum(['INCOMPLETE', 'ONBOARDED'])
 
 export const CustomPropSchema = z.object({
   key: z.string(),
-  value: z.union([z.string(), z.number(), z.boolean(), z.null()]),
+  value: z.string().or(z.number()).or(z.boolean()).nullable(),
 })
 
 export const CatalogItemSchema = z.object({
@@ -23,8 +23,8 @@ export const CatalogItemSchema = z.object({
   flavour: z.string().nullable(),
   packaging_size: z.string().nullable(),
   custom_props: z.array(CustomPropSchema),
-  created_at: z.string(),
-  updated_at: z.string(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
 })
 
 export const CatalogItemsResponseSchema = z.object({
@@ -82,15 +82,26 @@ export const RealogramItemEntrySchema = z.object({
   stack_index: z.number(),
 })
 
-export const ShareValueSchema = z.object({
-  group_by: z.enum(['products', 'tags']),
-  product_uuid: z.string().nullable(),
-  tag_uuid: z.string().optional(),
-  count: z.number(),
-  count_ratio: z.number(),
-  area: z.number(),
-  area_ratio: z.number(),
-})
+export const ShareValueSchema = z.discriminatedUnion('group_by', [
+  z.object({
+    group_by: z.literal('products'),
+    product_uuid: z.string().nullable(),
+    tag_uuid: z.undefined(),
+    count: z.number(),
+    count_ratio: z.number(),
+    area: z.number(),
+    area_ratio: z.number(),
+  }),
+  z.object({
+    group_by: z.literal('tags'),
+    product_uuid: z.null(),
+    tag_uuid: z.string(),
+    count: z.number(),
+    count_ratio: z.number(),
+    area: z.number(),
+    area_ratio: z.number(),
+  }),
+])
 
 export const ShareResultSchema = z.object({
   image_id: z.number(),
@@ -116,12 +127,16 @@ const ImageResultBaseSchema = z.object({
   coco: z.record(z.unknown()),
 })
 
-const ImageResultFlexibleSchema = ImageResultBaseSchema.extend({
-  status: z.string(),
-  failure_reason: z.union([z.string(), z.null()]),
-  duration: z.union([z.number(), z.null()]),
-  postprocessing_results: z.union([PostprocessingResultsSchema, z.null()]),
-  confidence_score: z.union([z.number(), z.null()]),
+const ImageResultUnknownSchema = ImageResultBaseSchema.extend({
+  status: z
+    .string()
+    .refine((val) => !['IN_PROGRESS', 'COMPLETED', 'FAILED'].includes(val), {
+      message: 'Unknown status value',
+    }),
+  failure_reason: z.string().nullable(),
+  duration: z.number().nullable(),
+  postprocessing_results: PostprocessingResultsSchema.nullable(),
+  confidence_score: z.number().nullable(),
 })
 
 const ImageResultInProgressSchema = ImageResultBaseSchema.extend({
@@ -154,7 +169,7 @@ export const ImageResultSchema = z.union([
     ImageResultFailedSchema,
     ImageResultCompletedSchema,
   ]),
-  ImageResultFlexibleSchema,
+  ImageResultUnknownSchema,
 ])
 
 export const TaskResultsResponseSchema = z.object({
